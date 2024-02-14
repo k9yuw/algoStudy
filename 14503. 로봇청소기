@@ -1,0 +1,53 @@
+import java.util.Scanner;
+
+public class Main {
+    
+    static int N, M, r, c, d;
+    static int[][] array;
+    static int count = 1;
+    static int[] dx = new int[]{-1, 0, 1, 0};
+    static int[] dy = new int[]{0, 1, 0, -1};
+    
+    public static void main(String[] args) {
+        Scanner scan = new Scanner(System.in);
+        N = scan.nextInt();
+        M = scan.nextInt();
+        r = scan.nextInt();
+        c = scan.nextInt();
+        d = scan.nextInt();
+        
+        array = new int[N][M];
+        for(int i = 0; i < N; i++) {
+            for(int j = 0; j < M; j++) {        
+                array[i][j] = scan.nextInt();
+            }
+        }
+        
+        clean(r, c, d);
+        System.out.println(count);
+    }
+    
+    public static void clean(int x, int y, int direction) {
+        array[x][y] = -1; // 노드 방문처리
+        
+        for(int i = 0; i < 4; i++) {
+            direction = (direction + 3) % 4; // 반시계 방향으로 90도 회전
+            int nx = x + dx[direction];
+            int ny = y + dy[direction];
+            if (nx >= 0 && ny >= 0 && nx < N && ny < M) {
+                if(array[nx][ny] == 0) {
+                    count++;
+                    clean(nx, ny, direction);
+                    return;
+                } 
+            }
+        }
+        
+        int newDirection = (direction + 2) % 4; // 후진 방향
+        int newX = x + dx[newDirection];
+        int newY = y + dy[newDirection];
+        if (newX >= 0 && newY >= 0 && newX < N && newY < M && array[newX][newY] != 1) {
+            clean(newX, newY, direction); // 후진이니까 바라보는 방향은 원래대로 유지
+        }
+    } 
+}
