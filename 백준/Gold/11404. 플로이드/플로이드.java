@@ -2,9 +2,11 @@ import java.io.*;
 import java.util.*;
 
 public class Main{
-    
+
+    // 100000은 버스를 한 번 이용하는 비용의 최댓값이다. 한 점에서 다른 점까지 버스를 여러 번 탄다면 그 비용은 COSTLIM=100001 설정 시 그것보다 훨씬 클 수 있다.
+    // 그렇다고 COSTLIM = Integer.MAX_VALUE로 설정 시 distance[i][j] = distance[i][k] + distance[k][j] 부분에서 21억 + 21억이라 오버플로우가 난다.......
     final static int COSTLIM = 10000001;
-    
+
     public static void main(String[] args) throws IOException{
         
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
