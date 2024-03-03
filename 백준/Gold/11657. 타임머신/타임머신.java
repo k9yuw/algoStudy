@@ -53,7 +53,7 @@ public class Main {
         
         boolean hasNegativeCycle = false;
         for(Edge edge: edges){
-            if(costArr[edge.from] != INF && costArr[edge.to] > costArr[edge.from] + edge.cost) {
+            if(costArr[edge.from] != INF && costArr[edge.to] > costArr[edge.from] + edge.cost) { // 위에서 이거를 같게 만들어주는 작업을 했음에도 불구하고 여전히 차이가 나는 경우!!
                     hasNegativeCycle = true;
                     break; 
                 }
