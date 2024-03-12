@@ -21,12 +21,12 @@ public class Main {
         for (int i = 1; i < N; i++) {
             int key = arr[i];
 
-            if (sortedArr[index - 1] < key) {
+            if (sortedArr[index - 1] < key) { // 추가하려는 key 값이 sortedArr 현재 길이의 맨 오른쪽값보다 크다면
                 index++;
-                sortedArr[index - 1] = key;
-            } else {
-                int insertionPoint = binarySearch(key, sortedArr, index);
-                sortedArr[insertionPoint] = key;
+                sortedArr[index - 1] = key; // 그 다음 칸에 key를 추가
+            } else { // 추가하려는 key값이 sortedArr 현재 길이의 맨 오른쪽값보다 작다면
+                int insertionPoint = binarySearch(key, sortedArr, index); 
+                sortedArr[insertionPoint] = key; // key 값이 들어갈 인덱스를 binarySearch를 통해 찾아서 삽입
             }
         }
 
