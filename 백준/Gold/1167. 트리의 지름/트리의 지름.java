@@ -1,67 +1,67 @@
 import java.io.*;
 import java.util.*;
 
-public class Main {    
+public class Main {
 
-    static ArrayList<Node>[] list;
+    static ArrayList<Edge>[] list;
     static boolean[] visited;
-    static int max = 0;
-    static int node;
+    static int maxDist = 0;
+    static int farthestNode;
 
     public static void main(String args[]) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
         int n = Integer.parseInt(br.readLine());
         list = new ArrayList[n + 1];
-        for (int i = 1; i < n + 1; i++) {
+        for (int i = 1; i <= n; i++) {
             list[i] = new ArrayList<>();
         }
 
         for (int i = 0; i < n; i++) {
             StringTokenizer st = new StringTokenizer(br.readLine());
-            int s = Integer.parseInt(st.nextToken());  // 수정: e -> s
+            int n1 = Integer.parseInt(st.nextToken());
             while (true) {
-                int e = Integer.parseInt(st.nextToken());
-                if (e == -1) break;
+                int n2 = Integer.parseInt(st.nextToken());
+                if (n2 == -1) break;
                 int cost = Integer.parseInt(st.nextToken());
-                list[s].add(new Node(e, cost));
+                list[n1].add(new Edge(n2, cost));
             }
         }
 
-        //임의의 노드(1)에서 부터 가장 먼 노드를 찾는다. 이때 찾은 노드를 node에 저장한다.
+        // 임의의 노드(1)에서부터 가장 먼 노드를 찾기. 이때 찾은 노드를 farthestNode에 저장한다.
         visited = new boolean[n + 1];
         dfs(1, 0);
 
-        //node에서 부터 가장 먼 노트까지의 거리를 구한다.
+        // farthestNode에서부터 가장 먼 노트까지의 거리를 구한다.
         visited = new boolean[n + 1];
-        dfs(node, 0);
+        dfs(farthestNode, 0);
 
-        System.out.println(max);
+        System.out.println(maxDist);
     }
 
-    public static void dfs(int x, int len) {
-        if (len > max) {
-            max = len;
-            node = x;
-        }
-        visited[x] = true;
-
-        for (int i = 0; i < list[x].size(); i++) {
-            Node n = list[x].get(i);
-            if (!visited[n.n]) { 
-                dfs(n.n, n.cost + len);
-                visited[n.n] = true;
-            }
-        }
-    }
-
-    public static class Node {
-        int n; 
+    public static class Edge {
+        int node;
         int cost;
 
-        public Node(int n, int cost) {
-            this.n = n;
+        public Edge(int node, int cost) {
+            this.node = node;
             this.cost = cost;
+        }
+    }
+
+    public static void dfs(int currentNode, int currentDist) {
+        if (currentDist > maxDist) {
+            maxDist = currentDist;
+            farthestNode = currentNode;
+        }
+
+        visited[currentNode] = true;
+
+        for (Edge connected : list[currentNode]) {
+            if (!visited[connected.node]) {
+                dfs(connected.node, connected.cost + currentDist);
+                visited[connected.node] = true;
+            }
         }
     }
 }
