@@ -15,7 +15,6 @@ public class Main{
         n = Integer.parseInt(br.readLine());
         board1 = new char[n][n];
         board2 = new char[n][n];
-        visited = new boolean[n][n];
         
         for(int i=0; i<n; i++){
             String st = br.readLine();
