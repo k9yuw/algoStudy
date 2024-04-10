@@ -1,27 +1,29 @@
 import java.io.*;
 import java.util.*;
 
-public class Main {
-    static int n, m;
-    static char[][] board;
-    static int[] dx = {1, -1, 0, 0};
-    static int[] dy = {0, 0, 1, -1};
+public class Main{
 
-    static class BeadsStatus { 
-        int redX, redY;
-        int blueX, blueY;
-        int cnt;
+    static class Status{
 
-        public BeadsStatus(int redX, int redY, int blueX, int blueY, int cnt) {
-            this.redX = redX;
-            this.redY = redY;
-            this.blueX = blueX;
-            this.blueY = blueY;
-            this.cnt = cnt;
+        int ry,rx,by,bx,count;
+
+        public Status(int ry, int rx, int by, int bx, int count){
+            this.ry = ry;
+            this.rx = rx;
+            this.by = by;
+            this.bx = bx;
+            this.count = count;
         }
     }
 
-    public static void main(String[] args) throws IOException {
+    static int n,m;
+    // 상, 하, 좌, 우
+    static int[] dy = {-1,1,0,0};
+    static int[] dx = {0,0,-1,1};
+    static char[][] board;
+
+    public static void main(String[] args) throws IOException{
+
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
 
@@ -29,115 +31,106 @@ public class Main {
         m = Integer.parseInt(st.nextToken());
         board = new char[n][m];
 
-        for (int i = 0; i < n; i++) {
+        for(int i=0; i<n; i++){
             board[i] = br.readLine().toCharArray();
         }
 
-        BeadsStatus init = new BeadsStatus(0,0,0,0,0); 
-        
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
-                if (board[i][j] == 'R') {
-                    init.redX = i;
-                    init.redY = j; 
+        Status init = new Status(0,0,0,0,0);
+
+        for(int i=0; i<n; i++){
+            for(int j=0; j<m; j++){
+                if(board[i][j]=='R'){
+                    init.ry = i;
+                    init.rx = j;
                     board[i][j] = '.';
                 }
-                if (board[i][j] == 'B') {
-                    init.blueX = i; 
-                    init.blueY = j; 
+                if(board[i][j]=='B'){
+                    init.by = i;
+                    init.bx = j;
                     board[i][j] = '.';
                 }
             }
         }
 
         System.out.println(bfs(init));
+
     }
 
-    static int bfs(BeadsStatus beads) {
-        Queue<BeadsStatus> queue = new LinkedList<>();
-        queue.offer(beads);
+    static int bfs(Status status){
 
-        while (!queue.isEmpty()) {
-            BeadsStatus dequeuedBeads = queue.poll();
+        Queue<Status> queue = new LinkedList<>();
+        queue.offer(status);
 
-            if (dequeuedBeads.cnt == 10) {
-                continue;
-            }
+        while(!queue.isEmpty()){
 
-            for (int d = 0; d < 4; d++) {
-                int redX = dequeuedBeads.redX;
-                int redY = dequeuedBeads.redY;
-                int blueX = dequeuedBeads.blueX;
-                int blueY = dequeuedBeads.blueY;
-                boolean isRedHole = false;
-                boolean isBlueHole = false;
+            Status currStat = queue.poll();
 
-                // red의 위치 이동
-                while (true) {
-                    int newRedX = redX + dx[d];
-                    int newRedY = redY + dy[d];
+            // 1. 종료조건 설정
+            if(currStat.count == 10) break;
 
-                    if (board[newRedX][newRedY] == '#') {
-                        break;
-                    }
+            // 2. 4방향 회전 for문
+            for(int d=0; d<4; d++){
 
-                    if (board[newRedX][newRedY] == 'O') {
+                int cry = currStat.ry, crx = currStat.rx;
+                int cby = currStat.by, cbx = currStat.bx;
+                int currCnt = currStat.count;
+                boolean isRedHole = false, isBlueHole = false;
+
+                // 2-1. red 이동
+                while(true){
+
+                    int nry = cry + dy[d];
+                    int nrx = crx + dx[d];
+
+                    if(board[nry][nrx] == '#') break;
+                    if(board[nry][nrx] == 'O'){
                         isRedHole = true;
                         break;
                     }
-
-                    redX = newRedX;
-                    redY = newRedY;
+                    cry = nry;
+                    crx = nrx;
                 }
 
-                // blue의 위치 이동
-                while (true) {
-                    int newBlueX = blueX + dx[d];
-                    int newBlueY = blueY + dy[d]; 
+                // 2-2. blue 이동
+                while(true){
 
-                    if (board[newBlueX][newBlueY] == '#') {
-                        break;
-                    }
+                    int nby = cby + dy[d];
+                    int nbx = cbx + dx[d];
 
-                    if (board[newBlueX][newBlueY] == 'O') {
+                    if(board[nby][nbx] == '#') break;
+                    if(board[nby][nbx] == 'O'){
                         isBlueHole = true;
                         break;
                     }
-
-                    blueX = newBlueX;
-                    blueY = newBlueY; 
+                    cby = nby;
+                    cbx = nbx;
                 }
 
-                if (isBlueHole) {
-                    continue;
-                } else if (isRedHole) {
-                    return dequeuedBeads.cnt+1; 
-                }
+                // 2-3. 파란 구슬이 구멍에 빠진 경우는 무시
+                if(isBlueHole) continue;
 
-                if (dequeuedBeads.redX == redX && dequeuedBeads.redY == redY && dequeuedBeads.blueX == blueX && dequeuedBeads.blueY == blueY) {
-                    continue;
-                }
+                // 2-4. 빨간 구슬이 구멍에 빠진 경우 현재 카운트 반환
+                if(isRedHole) return currCnt + 1;
 
-                if (redX == blueX && redY == blueY) {
-                    if (d == 0) {
-                        if (dequeuedBeads.redX < dequeuedBeads.blueX) redX--;
-                        else blueX--;
-                    } else if (d == 1) {
-                        if (dequeuedBeads.redX < dequeuedBeads.blueX) blueX++;
-                        else redX++;
-                    } else if (d == 2) {
-                        if (dequeuedBeads.redY < dequeuedBeads.blueY) redY--;
-                        else blueY--;
-                    } else if (d == 3) {
-                        if (dequeuedBeads.redY < dequeuedBeads.blueY) blueY++;
-                        else redY++;
+                // 2-5. 빨간 구슬과 파란 구슬이 같은 위치에 있는 경우 처리
+                if(cry == cby && crx == cbx){
+                    int redDist = Math.abs(cry - currStat.ry) + Math.abs(crx - currStat.rx);
+                    int blueDist = Math.abs(cby - currStat.by) + Math.abs(cbx - currStat.bx);
+                    if(redDist > blueDist){ // 더 많이 움직인 구슬을 한 칸 뒤로 이동
+                        cry -= dy[d];
+                        crx -= dx[d];
+                    } else {
+                        cby -= dy[d];
+                        cbx -= dx[d];
                     }
                 }
 
-                queue.offer(new BeadsStatus(redX, redY, blueX, blueY, dequeuedBeads.cnt + 1));
+                // 2-6. 다음 상태를 큐에 추가
+                queue.offer(new Status(cry, crx, cby, cbx, currCnt + 1));
             }
-        }
 
-        return -1;
+        }
+        return -1; // 실패
     }
+
 }
