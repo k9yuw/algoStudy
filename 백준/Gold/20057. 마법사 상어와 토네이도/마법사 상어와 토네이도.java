@@ -1,31 +1,29 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.StringTokenizer;
+import java.io.*;
+import java.util.*;
 
-public class Main {
+public class Main{
 
     static int n;
-    static int[][] board;
-    static int[] dx = {0, 1, 0, -1};
-    static int[] dy = {-1, 0, 1, 0}; // 좌,하,우,상
-    static int[] dc = {1, 1, 2, 2};   // 토네이도의 각 방향으로 이동하는 횟수
+    // 좌, 하, 우, 상
+    static int[] dy = {0,1,0,-1};
+    static int[] dx = {-1,0,1,0};
+    static int[] dc = {1,1,2,2};
     static int[] ratio = {2, 10, 7, 1, 5, 10, 7, 1, 2, 0};
-    static int[][] tornadoX = {
-        {-2, -1, -1, -1, 0, 1, 1, 1, 2, 0},
-        {0, 1, 0, -1, 2, 1, 0, -1, 0, 1},
-        {2, 1, 1, 1, 0, -1, -1, -1, -2, 0},
-        {0, -1, 0, 1, -2, -1, 0, 1, 0, -1}
+    static int[][] board;
+    static int[][] ty = {
+            {-2, -1, -1, -1, 0, 1, 1, 1, 2, 0},
+            {0, 1, 0, -1, 2, 1, 0, -1, 0, 1},
+            {2, 1, 1, 1, 0, -1, -1, -1, -2, 0},
+            {0, -1, 0, 1, -2, -1, 0, 1, 0, -1}
+    };
+    static int[][] tx = {
+            {0, -1, 0, 1, -2, -1, 0, 1, 0, -1},
+            {-2, -1, -1, -1, 0, 1, 1, 1, 2, 0},
+            {0, 1, 0, -1, 2, 1, 0, -1, 0, 1},
+            {2, 1, 1, 1, 0, -1, -1, -1, -2, 0}
     };
 
-    static int[][] tornadoY = {
-        {0, -1, 0, 1, -2, -1, 0, 1, 0, -1},
-        {-2, -1, -1, -1, 0, 1, 1, 1, 2, 0},
-        {0, 1, 0, -1, 2, 1, 0, -1, 0, 1},
-        {2, 1, 1, 1, 0, -1, -1, -1, -2, 0}
-    };
-
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException{
 
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st;
@@ -33,73 +31,76 @@ public class Main {
         n = Integer.parseInt(br.readLine());
         board = new int[n][n];
 
-        for (int i = 0; i < n; i++) {
+        for(int i=0; i<n; i++){
             st = new StringTokenizer(br.readLine(), " ");
-            for (int j = 0; j < n; j++) {
+            for(int j=0; j<n; j++){
                 board[i][j] = Integer.parseInt(st.nextToken());
             }
         }
-        System.out.println(spreadSand(n/2, n/2));
+        System.out.println(spread(n/2, n/2));
     }
 
+    
+    static int spread(int y, int x) {
 
-    static int spreadSand(int x, int y){
         int totalOutSand = 0;
-
         while (true) {
-            for(int dir=0; dir<4; dir++){
-                for(int moveCount = 0; moveCount<dc[dir]; moveCount++){
-                    //현재위치에서 이동
-                    int nextX = x+dx[dir];
-                    int nextY = y+dy[dir];
 
-                    if(nextX<0 || nextY<0 || nextX>=n ||nextY>=n){
-                        return totalOutSand;
-                    }
+            for (int dir = 0; dir < 4; dir++) {
+                for (int dist = 0; dist < dc[dir]; dist++) {
 
-                    //이동한 위치의 모래 뿌리기
-                    int currSpreadingSand = board[nextX][nextY];
-                    board[nextX][nextY] = 0;
+                    // 토네이도로 인한 좌표 이동
+                    int ny = y + dy[dir];
+                    int nx = x + dx[dir];
+
+                    if (ny < 0 || nx < 0 || ny >= n || nx >= n) return totalOutSand;
+
+
+                    // 이동한 위치에서 모래 날리기
+                    int currSpreadingSand = board[ny][nx];
+                    board[ny][nx] = 0;
+
+                    // 각 구역의 모래 계산
                     int sum = 0;
+                    for (int i=0; i<9; i++) {
 
+                        int currY = ny + ty[dir][i];
+                        int currX = nx + tx[dir][i];
+                        int currSectionSand = currSpreadingSand * ratio[i] / 100;
 
-                    for(int i=0; i<9; i++){
-                        int spreadedX = nextX + tornadoX[dir][i];
-                        int spreadedY = nextY + tornadoY[dir][i];
-                        int currSectionSand = (currSpreadingSand * ratio[i]) / 100;
-
-                        if(spreadedX<0 || spreadedX>=n || spreadedY<0 || spreadedY>=n){
+                        if (currY < 0 || currX < 0 || currY >= n || currX >= n) {
                             totalOutSand += currSectionSand;
+                        } else {
+                            board[currY][currX] += currSectionSand;
                         }
-                        else{
-                            board[spreadedX][spreadedY] += currSectionSand;
-                        }
-                        sum+= currSectionSand;
+
+                        sum += currSectionSand;
+                    }   
+
+                    // 알파 위치 모래 계산
+                    int alphaY = ny + dy[dir];
+                    int alphaX = nx + dx[dir];
+                    int alphaSand = currSpreadingSand - sum;
+
+                    if (alphaY < 0 || alphaX < 0 || alphaY >= n || alphaX >= n) {
+                        totalOutSand += alphaSand;
+                    } else {
+                        board[alphaY][alphaX] += alphaSand;
                     }
 
-                    //알파
-                    int alphaX = nextX + dx[dir];
-                    int alphaY = nextY + dy[dir];
-                    int alphaAmount = currSpreadingSand - sum;
-                    if(alphaX<0 || alphaX>=n || alphaY<0|| alphaY>=n){
-                        totalOutSand +=alphaAmount;
-                    }
-                    else{
-                        board[alphaX][alphaY] +=alphaAmount;
-                    }
+                    // 위치 업데이트
+                    y = ny;
+                    x = nx;
 
-
-                    //이동한 위치를 현재위치로 업데이트
-                    x = nextX;
-                    y = nextY;
                 }
             }
 
-            //횟수 업데이트
-            for(int i=0; i<4; i++){
-                dc[i] +=2;
+            // 달팽이 모양 길이 업데이트
+            for(int i = 0; i < 4; i++) {
+                dc[i] += 2;
             }
+
         }
     }
-}
 
+}
