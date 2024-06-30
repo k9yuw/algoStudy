@@ -11,6 +11,11 @@ public class Main{
     static int n;
     static int[][] board;
     static int[][] dp;
+
+    // 여기서 INF 값의 설정은 정답 여부에 영향을 미친다.
+    // Integer_MAX.VALUE로 설정하는 경우 두 개의 INF 값을 더할 때 overflow가 발생할 수 있다. 
+    // 하지만 16 * 1,000,000 (도시 최대 개수 16, 간선 하나의 최대값은 1000000 이므로 모든 도시를 방문할 때의 최대비용) 보다 크지 않으면, 
+    // Math.min 계산 시 값을 잘못 고르게 돼서 답이 틀린다. 
     static int INF = 999999999;
 
     public static void main(String[] args) throws IOException{
